@@ -35,13 +35,89 @@ These are solved using:
 
 ---
 
+# Understanding Keys in Digital Signatures
+
+The same Public Key and Private Key used for encryption are also used for Digital Signatures.
+
+The difference is **how they are used**.
+
+## Encryption
+
+```
+Public Key
+    ↓
+Encrypt Data
+    ↓
+Private Key
+    ↓
+Decrypt Data
+```
+
+Purpose:
+
+```
+Confidentiality
+
+(Hide the data)
+```
+
+---
+
+## Digital Signature
+
+```
+Private Key
+    ↓
+Sign Hash
+    ↓
+Digital Signature
+    ↓
+Public Key
+    ↓
+Verify Signature
+```
+
+Purpose:
+
+```
+Authenticity
+
+(Prove who created the data)
+```
+
+---
+
+## Easy Way to Remember
+
+```
+Encryption
+
+↓
+
+Can only the receiver read it?
+
+------------------------------
+
+Digital Signature
+
+↓
+
+Did the real sender create it?
+```
+
+The same key pair is used in both cases.
+
+Only the purpose changes.
+
+---
+
 # Digital Signatures
 
 A Digital Signature proves:
 
-- Who created the data (Authenticity)
-- The data has not been modified (Integrity)
-- The sender cannot deny sending it (Non-Repudiation)
+- Authenticity (Who created the file)
+- Integrity (File has not been modified)
+- Non-Repudiation (Sender cannot deny creating it)
 
 ---
 
@@ -97,13 +173,13 @@ Digital Signature
 
 ---
 
-## Receiver Verification
+# Receiver Verification
 
-Receiver performs two operations.
+The receiver performs two operations.
 
 ### Step 1
 
-Generate a new hash.
+Generate a new hash from the received file.
 
 ```
 report.pdf
@@ -121,7 +197,7 @@ ABC123XYZ
 
 ### Step 2
 
-Decrypt the Digital Signature using the sender's Public Key.
+Verify the Digital Signature using the sender's Public Key.
 
 ```
 Digital Signature
@@ -142,91 +218,83 @@ ABC123XYZ
 Compare both hashes.
 
 ```
-Hash 1 == Hash 2
+Hash from File
 
-↓
+==
 
-YES
+Hash from Digital Signature
+```
 
-↓
+If both hashes are equal:
 
-✓ File is original
-✓ File was not modified
-✓ File was signed by the owner
+```
+✓ File was not modified.
+
+✓ Signature was created using the sender's Private Key.
+
+✓ Therefore the sender is authentic.
+```
+
+If they are different:
+
+```
+✗ File was modified
+
+OR
+
+✗ Signature is invalid
+
+OR
+
+✗ Wrong Public Key was used
 ```
 
 ---
 
-# Important Difference
+# Real-Life Example
 
-## Encryption
+Suppose Girish sends:
 
 ```
-Public Key
+report.pdf
+
++
+
+Digital Signature
+```
+
+Receiver:
+
+```
+Creates hash of report.pdf
 
 ↓
 
-Encrypt
+Verifies Digital Signature using Girish's Public Key
 
 ↓
 
-Private Key
+Compares both hashes
 
 ↓
 
-Decrypt
-```
+If Equal
 
-Purpose:
+↓
 
-```
-Confidentiality
+Trust the file
 ```
 
 ---
 
-## Digital Signature
-
-```
-Private Key
-
-↓
-
-Sign
-
-↓
-
-Public Key
-
-↓
-
-Verify
-```
-
-Purpose:
-
-```
-Authenticity
-
-Integrity
-
-Non-Repudiation
-```
-
-Notice that the keys are the same.
-
-Only their direction changes.
-
----
-
-# Real-World Uses
+# Where are Digital Signatures Used?
 
 - HTTPS
 - Software Downloads
 - Git Commit Signing
-- Code Signing
 - PDF Signing
 - Email Signing
+- Code Signing
 
 ---
 
@@ -251,11 +319,10 @@ Google Trust Services
 Expiry:
 12 Jan 2027
 
-Signature:
 CA Signature
 ```
 
-A Certificate does NOT contain the Private Key.
+A Certificate **does not** contain the Private Key.
 
 ---
 
@@ -269,13 +336,13 @@ Public Key
 Private Key
 ```
 
-A hacker could create keys and claim:
+A hacker could also generate a key pair and claim:
 
 ```
 "I am google.com"
 ```
 
-How can your browser know?
+How does your browser know whether that Public Key really belongs to Google?
 
 Certificates solve this problem.
 
@@ -285,7 +352,7 @@ They bind a Public Key to a verified owner.
 
 # Certificate Authority (CA)
 
-A Certificate Authority is a trusted third party.
+A Certificate Authority (CA) is a trusted third party.
 
 Its job is to verify that a Public Key really belongs to the claimed owner before issuing a certificate.
 
@@ -317,7 +384,7 @@ CA verifies domain ownership
 
 ↓
 
-CA signs the Certificate
+CA signs the Certificate using its Private Key
 
 ↓
 
@@ -328,7 +395,7 @@ Certificate Issued
 
 # Browser Verification
 
-When visiting:
+When you visit:
 
 ```
 https://google.com
@@ -336,23 +403,31 @@ https://google.com
 
 The browser receives Google's certificate.
 
-It checks:
+Then it checks:
 
 ```
 Was this certificate signed by a trusted CA?
 ```
 
-If YES
+The browser already contains the Public Keys of trusted Certificate Authorities.
+
+It uses the CA's Public Key to verify the CA's Digital Signature.
+
+If the verification succeeds:
 
 ```
-✓ Trust this Public Key
+✓ Certificate is trusted
 
 ↓
 
-Secure HTTPS Connection
+✓ Trust Google's Public Key
+
+↓
+
+✓ Secure HTTPS Connection
 ```
 
-If NO
+If verification fails:
 
 ```
 ❌ Your connection is not private
@@ -372,11 +447,7 @@ Public Key
 Private Key
 ```
 
-But the attacker cannot obtain a valid CA signature for:
-
-```
-google.com
-```
+But the attacker **cannot obtain a valid CA signature for google.com**.
 
 Without a trusted CA signature,
 
@@ -388,47 +459,34 @@ the browser refuses to trust the attacker's certificate.
 
 ```
 Encryption
-
-↓
-
+        ↓
 Confidentiality
 
--------------------------
+----------------------------
 
 Hashing
-
-↓
-
+        ↓
 Integrity
 
--------------------------
+----------------------------
 
 Digital Signature
-
-↓
-
+        ↓
 Authenticity
-
 Integrity
-
 Non-Repudiation
 
--------------------------
+----------------------------
 
-Certificates
-
-↓
-
+Certificate
+        ↓
 Authentication
-
 Identity Verification
 
--------------------------
+----------------------------
 
 Certificate Authority
-
-↓
-
+        ↓
 Trust
 ```
 
@@ -438,7 +496,7 @@ Trust
 
 ### What is a Digital Signature?
 
-A hash of data encrypted using the sender's Private Key.
+A hash of data signed using the sender's Private Key.
 
 ---
 
@@ -497,7 +555,7 @@ AES
 Hide Data
 (Confidentiality)
 
---------------------
+----------------------
 
 SHA
 ↓
@@ -505,15 +563,15 @@ SHA
 Detect Changes
 (Integrity)
 
---------------------
+----------------------
 
 Digital Signature
 ↓
 
-Who Sent It?
+Who Created It?
 (Authenticity)
 
---------------------
+----------------------
 
 Certificate
 ↓
@@ -521,7 +579,7 @@ Certificate
 Who Owns This Public Key?
 (Authentication)
 
---------------------
+----------------------
 
 Certificate Authority
 ↓
