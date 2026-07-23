@@ -24,9 +24,8 @@ Cryptography
 │   └── Certificates
 │
 ├── Authenticity
-│   ├── Digital Signatures
-│   └── Certificates
-│
-└── Trust
-    └── Certificate Authorities (CA)
+   ├── Digital Signatures
+   └── Certificates
+   └── Certificate Authorities (CA)
+
 ```
