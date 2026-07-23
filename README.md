@@ -23,7 +23,7 @@ Cryptography
 │   ├── SSH Keys
 │   └── Certificates
 │
-├── Authenticity
+├── Authenticity and Trust
    ├── Digital Signatures
    └── Certificates
    └── Certificate Authorities (CA)
